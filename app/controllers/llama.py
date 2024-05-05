@@ -11,11 +11,6 @@ class ChatRequest:
     message: str
 
 
-@dataclasses.dataclass
-class ChatResponse:
-    message: str
-
-
 class LlamaController(Routable):
     def __init__(self):
         super().__init__()
