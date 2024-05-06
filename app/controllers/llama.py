@@ -11,12 +11,17 @@ class ChatRequest:
     message: str
 
 
+@dataclasses.dataclass
+class ChatResponse:
+    message: str
+
+
 class LlamaController(Routable):
     def __init__(self):
         super().__init__()
         self.llm = Llama()
 
-    @ws('/chat')
+    @ws('/chat/')
     async def ws(self, websocket: WebSocket):
         try:
             print("WS CONNECTION ESTABLISHED...")
@@ -24,7 +29,6 @@ class LlamaController(Routable):
             await websocket.accept()
             await websocket.send_json({"message": "What do you want to chat about?"})
             while True:
-
                 data = await websocket.receive_text()
 
                 human = decode_message(data)
