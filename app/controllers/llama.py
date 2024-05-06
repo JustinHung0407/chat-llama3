@@ -21,7 +21,7 @@ class LlamaController(Routable):
         super().__init__()
         self.llm = Llama()
 
-    @ws('/chat/')
+    @ws('/chat')
     async def ws(self, websocket: WebSocket):
         try:
             print("WS CONNECTION ESTABLISHED...")

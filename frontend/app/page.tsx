@@ -10,28 +10,27 @@ import {Badge} from "@/components/ui/badge"
 import {Label} from "@/components/ui/label"
 import {Textarea} from "@/components/ui/textarea"
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,} from "@/components/ui/tooltip"
-import {FormEvent, useState} from "react";
-import {io} from "socket.io-client";
+import {FormEvent, useEffect, useState} from "react";
 
-const socket = io('ws://127.0.0.1:8000', {
-  transports: ["websocket"],
-  path: "/chat"
-});
+import useWebSocket from 'react-use-websocket';
+
+const socketUrl = "ws://127.0.0.1:8000/chat"
+
+interface ServerResponse {
+  message: string
+}
 
 export default function IndexPage() {
-  let count = 0
+
   const [messageState, setMessage] = useState<Message[]>([]);
+  const {sendJsonMessage, lastJsonMessage, readyState} = useWebSocket<ServerResponse>(socketUrl);
 
-  socket.on('connect', () => {
-    console.log('connected')
-  })
-  socket.on("packet", ({type, data}) => {
-    count = count + 1
-    let msg = data.message ?? ""
-    let newMessage = {id: count, from: "BOT", message: msg}
-
-    setMessage([...messageState, newMessage]);
-  });
+  useEffect(() => {
+    if (lastJsonMessage !== null) {
+      let msg = {from: "BOT", message: lastJsonMessage.message}
+      setMessage((prev) => prev.concat(msg));
+    }
+  }, [lastJsonMessage]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     console.log("send triggered")
@@ -40,13 +39,13 @@ export default function IndexPage() {
     let formData = new FormData(event.currentTarget)
     let user_msg: string = formData.get("message")!.toString() ?? ""
 
+    if (user_msg === "") {
+      return
+    }
 
-    count = count + 1
-
-    let newMessage = {id: count, from: "User", message: user_msg}
-    setMessage([...messageState, newMessage]);
-
-    socket.emit("chat", {message: newMessage.message});
+    let new_message = {from: "User", message: user_msg}
+    setMessage([...messageState, new_message]);
+    sendJsonMessage({message: user_msg})
   }
 
   return (

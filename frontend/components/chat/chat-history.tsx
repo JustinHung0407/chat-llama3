@@ -5,7 +5,6 @@ import {Avatar, AvatarImage} from "@/components/ui/avatar"
 import React, {useRef} from "react";
 
 export interface Message {
-  id: number;
   message: string;
   from: string;
 }
@@ -23,9 +22,9 @@ export function ChatList({messages}: ChatListProps) {
   //       messagesContainerRef.current.scrollHeight;
   //   }
   // }, [messages]);
-
+  console.log(messages)
   return (
-    <>
+    <div className="overflow-y-auto">
       {messages?.map((message, index) => (
         <div
           className={cn(
@@ -61,6 +60,6 @@ export function ChatList({messages}: ChatListProps) {
           </div>
         </div>
       ))}
-    </>
+    </div>
   );
 }
